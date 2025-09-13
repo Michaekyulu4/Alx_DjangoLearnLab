@@ -3,6 +3,8 @@ from relationship_app.models import Author, Book, Library, Librarian
 
 from relationship_app.models import Author, Book, Library, Librarian
 
+def from relationship_app.models import Author, Book, Library, Librarian
+
 def run():
     # 1. Query all books by a specific author
     author_name = "J.K. Rowling"
@@ -26,10 +28,10 @@ def run():
     except Library.DoesNotExist:
         print(f"Library '{library_name}' not found.")
 
-    # 3. Retrieve the librarian for a library (only if library exists)
+    # 3. Retrieve the librarian for a library using Librarian.objects.get(library=...)
     if library:
         try:
-            librarian = library.librarian
+            librarian = Librarian.objects.get(library=library)
             print(f"\nLibrarian for {library_name}: {librarian.name}")
         except Librarian.DoesNotExist:
             print(f"No librarian found for '{library_name}'.")
