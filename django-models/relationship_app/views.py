@@ -15,3 +15,5 @@ class LibraryDetailView(DetailView):
     # Updated template path
     template_name = "relationship_app/library_detail.html"
     context_object_name = "library"
+
+    relationship_app/list_books.html
