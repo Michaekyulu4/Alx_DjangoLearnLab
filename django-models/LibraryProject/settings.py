@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# settings.py
+LOGIN_REDIRECT_URL = "home"   # redirect after successful login (update to your route name)
+LOGOUT_REDIRECT_URL = "login" # redirect after logout
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,7 +58,10 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'LibraryProject.urls'
 
 TEMPLATES = [
-    {
+    {    
+
+        'DIRS': [BASE_DIR / "templates"],  # if you have global templates
+        'APP_DIRS': True,
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
         'APP_DIRS': True,
@@ -121,4 +128,6 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Make sure templates are correctly configured

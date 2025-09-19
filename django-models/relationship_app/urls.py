@@ -14,12 +14,22 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path
-from . import views
+from .views import list_books, LibraryDetailView, register, CustomLoginView, CustomLogoutView, home
+from . import views 
+from .views import register, CustomLoginView, CustomLogoutView
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path("books/", views.list_books, name="list_books"),  # FBV
-    path("library/<int:pk>/", views.LibraryDetailView.as_view(), name="library_detail"),  # CBV
+    # Function-based view
+    path("", home, name="home"),  # 👈 Now 'home' exists
+    path("books/", views.list_books, name="list_books"),
+       
+    # Class-based view
+    path("library/<int:pk>/", views.LibraryDetailView.as_view(), name="library_detail"),
+    path("register/", register, name="register"),
+    path("login/", CustomLoginView.as_view(), name="login"),
+    path("logout/", CustomLogoutView.as_view(), name="logout"),
 ]
+
+# relationship_app/urls.py
