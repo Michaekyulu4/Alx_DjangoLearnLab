@@ -20,10 +20,14 @@ from . import views
 from .views import register, CustomLoginView, CustomLogoutView
 from django.contrib.auth import views as auth_views
 
+
 urlpatterns = [
     # Function-based view
     path("", home, name="home"),  # 👈 Now 'home' exists
     path("books/", views.list_books, name="list_books"),
+    path("books/add/", views.add_book, name="add_book"),
+    path("books/<int:pk>/edit/", views.edit_book, name="edit_book"),
+    path("books/<int:pk>/delete/", views.delete_book, name="delete_book"),
        
     # Class-based view
     path("library/<int:pk>/", views.LibraryDetailView.as_view(), name="library_detail"),
@@ -31,5 +35,3 @@ urlpatterns = [
     path("login/", CustomLoginView.as_view(), name="login"),
     path("logout/", CustomLogoutView.as_view(), name="logout"),
 ]
-
-# relationship_app/urls.py
