@@ -1,0 +1,15 @@
+{# templates/bookshelf/form_example.html #}
+<form method="post" action="{% url 'bookshelf:some_form_view' %}">
+{% csrf_token %}
+
+
+{{ form.non_field_errors }}
+
+
+<label for="id_query">Search</label>
+{{ form.query.errors }}
+{{ form.query }} {# Django form widgets escape by default #}
+
+
+<button type="submit">Search</button>
+</form>
