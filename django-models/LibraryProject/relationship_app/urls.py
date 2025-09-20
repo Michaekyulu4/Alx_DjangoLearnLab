@@ -27,6 +27,9 @@ urlpatterns = [
 
     # Book views
     path("books/", views.list_books, name="list_books"),
+    path("books/add_book/", views.add_book, name="add_book"),              # ✅ required
+    path("books/<int:pk>/edit_book/", views.edit_book, name="edit_book"),  # ✅ required
+    path("books/<int:pk>/delete_book/", views.delete_book, name="delete_book"),  # ✅ required
     path("library/<int:pk>/", views.LibraryDetailView.as_view(), name="library_detail"),
 
     # Authentication
