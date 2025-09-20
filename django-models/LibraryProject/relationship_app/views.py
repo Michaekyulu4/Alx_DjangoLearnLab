@@ -6,7 +6,9 @@ from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponse
 from django.contrib.auth.decorators import user_passes_test, permission_required
-from .forms import BookForm   # make sure you have this form
+from .forms import BookForm 
+from django.contrib.auth.decorators import permission_required
+  # make sure you have this form
 
 
 def home(request):
