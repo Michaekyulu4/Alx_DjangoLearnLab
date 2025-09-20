@@ -6,11 +6,7 @@ from .models import Book, CustomUser
 class BookAdmin(admin.ModelAdmin):
     # Display these fields in the list view
     list_display = ('title', 'author', 'publication_year')
-
-    # Add filters on the right sidebar
     list_filter = ('author', 'publication_year')
-
-    # Add a search box
     search_fields = ('title', 'author')
 
 
@@ -33,3 +29,8 @@ class CustomUserAdmin(UserAdmin):
 
     search_fields = ("email", "username")
     ordering = ("email",)
+
+
+# Register both models with the admin
+admin.site.register(Book, BookAdmin)
+admin.site.register(CustomUser, CustomUserAdmin)
