@@ -5,6 +5,7 @@ from .models import Book
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Q
 from .forms import SearchForm
+from .forms import ExampleForm
 
 # View all books (requires can_view)
 @permission_required('bookshelf.can_view', raise_exception=True)
@@ -83,3 +84,32 @@ cursor.execute(sql, param) # parameters are safe
 rows = cursor.fetchall()
 # convert rows to model-like objects or ids then fetch via ORM if necessary
 return render(request, 'bookshelf/book_list.html', {'books_raw': rows})
+
+from .forms import ExampleForm  # ✅ add this import
+
+
+@csrf_protect
+def example_form_view(request):
+    """
+    View to demonstrate secure form handling with CSRF token and validation.
+    """
+    if request.method == "POST":
+        form = ExampleForm(request.POST)
+        if form.is_valid():
+            # Safely access cleaned data
+            name = form.cleaned_data["name"]
+            email = form.cleaned_data["email"]
+            message = form.cleaned_data["message"]
+
+            # Example: log or process data (don’t use unsanitized!)
+            print(f"Received: {name}, {email}, {message}")
+
+            # Optionally, show success feedback
+            return render(request, "bookshelf/form_example.html", {
+                "form": ExampleForm(),  # reset form
+                "success": True,
+            })
+    else:
+        form = ExampleForm()
+
+    return render(request, "bookshelf/form_example.html", {"form": form})

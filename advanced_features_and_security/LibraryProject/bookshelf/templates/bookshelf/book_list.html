@@ -1,0 +1,8 @@
+{# templates/bookshelf/book_list.html #}
+{% for book in books %}
+<div class="book-item">
+<h2>{{ book.title }}</h2>
+<p>By {{ book.author.name }}</p>
+<p>{{ book.description|default_if_none:"No description" }}</p>
+</div>
+{% endfor %}
