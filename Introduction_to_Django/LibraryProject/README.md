@@ -1,1 +1,1 @@
-New Project Readme testing Django
+# LibraryProject - Django Setup
