@@ -132,3 +132,55 @@ STATIC_URL = 'static/'
 
 
 # Make sure templates are correctly configured
+# SECURITY: base production settings
+DEBUG = False # must be False in production
+
+
+# Replace with your actual hosts in production
+ALLOWED_HOSTS = ["yourdomain.com", "www.yourdomain.com"]
+
+
+# Ensure HTTPS is used in production
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000 # 1 year; adjust during rollout
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+
+# Browser protections
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+
+# Cookies: ensure they are only sent over HTTPS and not accessible to JS
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False # keep False if you need JS to read the CSRF token; True reduces XSS impact
+SESSION_COOKIE_HTTPONLY = True
+
+
+# Other useful settings
+SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') # set if behind a proxy
+
+
+# Content Security Policy using django-csp
+# Install: pip install django-csp
+INSTALLED_APPS += [
+'csp',
+]
+
+
+MIDDLEWARE = [
+'csp.middleware.CSPMiddleware',
+] + MIDDLEWARE
+
+
+# Example (restrictive) CSP — adapt domains as needed
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", 'https://fonts.googleapis.com')
+CSP_FONT_SRC = ("'self'", 'https://fonts.gstatic.com')
+CSP_IMG_SRC = ("'self'", 'data:')
+CSP_CONNECT_SRC = ("'self'",)
