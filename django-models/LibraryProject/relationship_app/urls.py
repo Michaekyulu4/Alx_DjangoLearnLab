@@ -15,24 +15,27 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-from .views import list_books, LibraryDetailView, register, CustomLoginView, CustomLogoutView, home
-from . import views 
-from .views import register, CustomLoginView, CustomLogoutView
-from django.contrib.auth import views as auth_views
+from . import views
+from .views.admin_view import admin_view
+from .views.librarian_view import librarian_view
+from .views.member_view import member_view
 from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
-    # Function-based view
-    path("", home, name="home"),  # 👈 Now 'home' exists
-    path("books/", views.list_books, views.register, name="list_books"),
-       
-    # Class-based view
+    # Home
+    path("", views.home, name="home"),
+
+    # Book views
+    path("books/", views.list_books, name="list_books"),
     path("library/<int:pk>/", views.LibraryDetailView.as_view(), name="library_detail"),
+
+    # Authentication
     path("register/", views.register, name="register"),
     path("login/", LoginView.as_view(template_name="relationship_app/login.html"), name="login"),
     path("logout/", LogoutView.as_view(template_name="relationship_app/logout.html"), name="logout"),
-    path("admin-dashboard/", views.admin_view, name="admin_view"),
-    path("librarian-dashboard/", views.librarian_view, name="librarian_view"),
-    path("member-dashboard/", views.member_view, name="member_view"),
-    path("admin-view/", views.admin_view, name="admin_view"),
+
+    # Role-based access
+    path("admin-view/", admin_view, name="admin_view"),
+    path("librarian-view/", librarian_view, name="librarian_view"),
+    path("member-view/", member_view, name="member_view"),
 ]
