@@ -10,9 +10,11 @@ urlpatterns = [
     # Register and profile
     path("register/", views.register, name="register"),
     path("profile/", views.profile, name="profile"),
-    path("posts/", views.PostListView.as_view(), name="posts"),
-    path("posts/new/", views.PostCreateView.as_view(), name="post_create"),
-    path("posts/<int:pk>/", views.PostDetailView.as_view(), name="post_detail"),
-    path("posts/<int:pk>/edit/", views.PostUpdateView.as_view(), name="post_update"),
-    path("posts/<int:pk>/delete/", views.PostDeleteView.as_view(), name="post_delete"),
+
+    # Blog post CRUD
+    path("", views.PostListView.as_view(), name="post-list"),
+    path("post/new/", views.PostCreateView.as_view(), name="post-create"),
+    path("post/<int:pk>/", views.PostDetailView.as_view(), name="post-detail"),
+    path("post/<int:pk>/update/", views.PostUpdateView.as_view(), name="post-update"),
+    path("post/<int:pk>/delete/", views.PostDeleteView.as_view(), name="post-delete"),
 ]
