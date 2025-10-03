@@ -79,7 +79,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'blogdb',       # database name
         'USER': 'postgres',     # your DB username
-        'PASSWORD': 'yourpassword',  # your DB password
+        'PASSWORD': 'Mike@4687',  # your DB password
         'HOST': 'localhost',
         'PORT': '5432',         # default PostgreSQL port
     }
@@ -103,7 +103,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_REDIRECT_URL = "profile"   # name of the URL to redirect after login
+LOGOUT_REDIRECT_URL = "login"    # optional
 
+# If using media files for avatar:
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
