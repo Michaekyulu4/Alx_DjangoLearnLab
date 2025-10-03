@@ -55,6 +55,78 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Make sure SecurityMiddleware is enabled and early in the list
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    # ... other middleware: WhiteNoise (if used), SessionMiddleware, CsrfViewMiddleware, ...
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # ...
+]
+
+# 1) Redirect all non-HTTPS requests to HTTPS.
+# In production, set this to True so Django will redirect HTTP => HTTPS.
+SECURE_SSL_REDIRECT = True
+
+# If your site is behind a reverse-proxy (e.g. Nginx, AWS ELB, Cloudflare)
+# that terminates SSL, let Django know which header indicates HTTPS:
+# (Nginx: proxy_set_header X-Forwarded-Proto $scheme;)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# 2) HTTP Strict Transport Security (HSTS)
+#  - SECURE_HSTS_SECONDS: time browsers should remember to only use HTTPS.
+#    31536000 seconds = 1 year. Use a short time (e.g., 3600) initially to test,
+#    then raise it and consider enabling preload.
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+
+# Include subdomains in HSTS policy (use only when you control subdomains and they serve HTTPS)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+# Opt into the HSTS preload list (only enable after you verify subdomains and HTTPS works)
+SECURE_HSTS_PRELOAD = True
+
+# 3) Secure cookies - ensure cookies are only sent over HTTPS
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Optional: HttpOnly helps mitigate some XSS cookie theft risks
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # Note: setting True can break some JS that reads the CSRF cookie; usually False
+
+# 4) Additional secure headers and Django options
+# Frame options to protect against clickjacking attacks
+X_FRAME_OPTIONS = "DENY"  # alternatives: "SAMEORIGIN"
+
+# Prevent MIME sniffing
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Turn on XSS filter in browser (some browsers ignore)
+SECURE_BROWSER_XSS_FILTER = True
+
+# Referrer policy (optional but recommended)
+SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"  # or "strict-origin-when-cross-origin"
+
+# 5) Other production hardening
+DEBUG = False  # MUST be False in production
+
+# Make sure you set ALLOWED_HOSTS for production
+ALLOWED_HOSTS = ["yourdomain.com", "www.yourdomain.com"]  # update accordingly
+
+# 6) CSP (Content Security Policy)
+# Django doesn't include CSP by default. Consider adding django-csp or configuring via web server:
+# e.g., pip install django-csp and then configure CSP directives to reduce XSS risk.
+# Example: add 'csp.middleware.CSPMiddleware' to MIDDLEWARE and configure CSP_* settings.
+
+# 7) Logging failures for HSTS & SSL redirects (optional but useful)
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": "INFO"},
+}
+
 ROOT_URLCONF = 'LibraryProject.urls'
 
 TEMPLATES = [
