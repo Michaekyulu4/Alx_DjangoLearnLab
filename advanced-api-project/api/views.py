@@ -1,4 +1,5 @@
-from rest_framework import generics, permissions
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from .models import Book
 from .serializers import BookSerializer
 
@@ -8,11 +9,11 @@ from .serializers import BookSerializer
 class BookListView(generics.ListAPIView):
     """
     Retrieves a list of all books.
-    Accessible to everyone (read-only).
+    Publicly accessible (read-only).
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 # -----------------------------
@@ -21,11 +22,11 @@ class BookListView(generics.ListAPIView):
 class BookDetailView(generics.RetrieveAPIView):
     """
     Retrieves a single book by its ID.
-    Accessible to everyone (read-only).
+    Publicly accessible (read-only).
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 # -----------------------------
@@ -38,13 +39,13 @@ class BookCreateView(generics.CreateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         """
-        Custom hook to handle any extra logic before saving.
+        Hook for pre-save customization.
         """
-        serializer.save()  # Save the new book instance
+        serializer.save()
 
 
 # -----------------------------
@@ -57,12 +58,9 @@ class BookUpdateView(generics.UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def perform_update(self, serializer):
-        """
-        Hook to customize behavior before updating an instance.
-        """
         serializer.save()
 
 
@@ -76,7 +74,4 @@ class BookDeleteView(generics.DestroyAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-# Create your views here.
+    permission_classes = [IsAuthenticated]
