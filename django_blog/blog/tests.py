@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import Post, Comment
+from .models import Post, Comment, Tag
 
 class CommentTests(TestCase):
     def setUp(self):
@@ -36,6 +36,23 @@ class CommentTests(TestCase):
         self.client.login(username="u1", password="pass12345")
         resp = self.client.post(url, follow=True)
         self.assertNotContains(resp, "hi")
+
+class TagAndSearchTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="u", password="p")
+        self.post1 = Post.objects.create(title="Django tips", content="Learn Django", author=self.user)
+        tag = Tag.objects.create(name="django")
+        self.post1.tags.add(tag)
+        self.post2 = Post.objects.create(title="Flask tips", content="Learn Flask", author=self.user)
+
+    def test_tag_page(self):
+        resp = self.client.get(reverse("tag-posts", kwargs={"tag_name":"django"}))
+        self.assertContains(resp, "Django tips")
+        self.assertNotContains(resp, "Flask tips")
+
+    def test_search_by_title(self):
+        resp = self.client.get(reverse("search-results") + "?q=Django")
+        self.assertContains(resp, "Django tips")
 
 
 # Create your tests here.

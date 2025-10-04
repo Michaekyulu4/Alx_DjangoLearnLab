@@ -10,7 +10,7 @@ from .models import Post
 from .forms import PostForm
 from django.shortcuts import get_object_or_404, redirect
 from .forms import PostForm, CommentForm
-from .models import Post, Comment
+from .models import Post, Comment, Tag
 
 def register(request):
     if request.method == "POST":
@@ -134,3 +134,92 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         comment = self.get_object()
         return comment.author == self.request.user
+    
+class PostListView(ListView):
+    model = Post
+    template_name = "blog/posts_list.html"
+    context_object_name = "posts"
+    ordering = ["-published_date"]
+    paginate_by = 10
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = "blog/post_detail.html"
+    context_object_name = "post"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["comment_form"] = CommentForm()
+        return ctx
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = "blog/post_form.html"
+    login_url = "login"
+
+    def form_valid(self, form):
+        # save with author
+        self.object = form.save(commit=False)
+        self.object.author = self.request.user
+        self.object.save()
+        # handle tags via form.save override
+        form.save_m2m = lambda: None  # ensure no error if form.save_m2m called
+        form.save(commit=True)
+        return redirect(self.object.get_absolute_url())
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = "blog/post_form.html"
+    login_url = "login"
+
+    def form_valid(self, form):
+        # save will update tags via PostForm.save
+        post = form.save(commit=True)
+        return redirect(post.get_absolute_url())
+
+    def test_func(self):
+        post = self.get_object()
+        return post.author == self.request.user
+
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post
+    template_name = "blog/post_confirm_delete.html"
+    success_url = reverse_lazy("post-list")
+
+    def test_func(self):
+        post = self.get_object()
+        return post.author == self.request.user
+
+# Tag list view - posts for a given tag
+class TagListView(ListView):
+    model = Post
+    template_name = "blog/tag_posts.html"
+    context_object_name = "posts"
+
+    def get_queryset(self):
+        self.tag = get_object_or_404(Tag, name=self.kwargs.get("tag_name"))
+        return self.tag.posts.all().order_by("-published_date")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["tag"] = self.tag
+        return ctx
+
+# Search view
+class SearchResultsView(ListView):
+    model = Post
+    template_name = "blog/search_results.html"
+    context_object_name = "posts"
+
+    def get_queryset(self):
+        q = self.request.GET.get("q", "")
+        if not q:
+            return Post.objects.none()
+        # search title/content and tags
+        return Post.objects.filter(
+            Q(title__icontains=q) |
+            Q(content__icontains=q) |
+            Q(tags__name__icontains=q)
+        ).distinct().order_by("-published_date")
