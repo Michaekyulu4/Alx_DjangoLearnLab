@@ -102,16 +102,12 @@ class PostDetailView(DetailView):
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = CommentForm
-    template_name = "blog/comment_form.html"  # used if user visits the create page directly
-    # not necessary to set success_url; we'll return post detail in form_valid
 
     def form_valid(self, form):
-        post_pk = self.kwargs.get("post_pk")
-        post = get_object_or_404(Post, pk=post_pk)
+        post = get_object_or_404(Post, pk=self.kwargs.get("pk"))
         form.instance.post = post
         form.instance.author = self.request.user
-        response = super().form_valid(form)
-        return redirect(post.get_absolute_url())
+        return super().form_valid(form)
 
     def get_success_url(self):
         return self.object.post.get_absolute_url()
