@@ -1,7 +1,8 @@
 from pathlib import Path
 import os
 import dj_database_url  # if using DATABASE_URL
-
+from dotenv import load_dotenv
+load_dotenv()
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -125,6 +126,9 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ),
 }
+
+PORT = os.getenv('PORT', '8000')
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
