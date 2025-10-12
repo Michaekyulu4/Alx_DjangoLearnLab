@@ -100,9 +100,17 @@ USE_I18N = True
 USE_TZ = True
 
 # Static and media files
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
+# Directory where collectstatic will gather all static files for production
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Optional: during development
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
