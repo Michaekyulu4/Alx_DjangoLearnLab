@@ -1,16 +1,17 @@
-from rest_framework import generics, permissions, viewsets
+from rest_framework import generics, permissions, viewsets, status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+
 from .models import CustomUser
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, UserSummarySerializer
 from posts.serializers import PostSerializer, CommentSerializer
 from posts.models import Post, Comment
-from rest_framework import status, permissions, generics
-from rest_framework.response import Response
-from django.contrib.auth import get_user_model
-from .serializers import UserSummarySerializer
+from notifications.models import Notification
+
 
 User = get_user_model()
 
@@ -22,11 +23,26 @@ class FollowUserView(generics.GenericAPIView):
     def post(self, request, user_id):
         """Follow another user."""
         target_user = get_object_or_404(CustomUser, id=user_id)
+
         if target_user == request.user:
             return Response({"detail": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Add follow relationship
         request.user.following.add(target_user)
-        return Response({"detail": f"You are now following {target_user.username}."}, status=status.HTTP_200_OK)
+
+        # ✅ Create a notification for the followed user
+        Notification.objects.create(
+            recipient=target_user,
+            actor=request.user,
+            verb='started following you',
+            target_content_type=ContentType.objects.get_for_model(request.user),
+            target_object_id=str(request.user.pk),
+        )
+
+        return Response(
+            {"detail": f"You are now following {target_user.username}."},
+            status=status.HTTP_200_OK
+        )
 
 
 class UnfollowUserView(generics.GenericAPIView):
@@ -36,6 +52,7 @@ class UnfollowUserView(generics.GenericAPIView):
     def post(self, request, user_id):
         """Unfollow a user."""
         target_user = get_object_or_404(CustomUser, id=user_id)
+
         if target_user == request.user:
             return Response({"detail": "You cannot unfollow yourself."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -44,9 +61,7 @@ class UnfollowUserView(generics.GenericAPIView):
 
 
 class FollowingListView(generics.ListAPIView):
-    """
-    List users that the request.user is following.
-    """
+    """List users that the request.user is following."""
     serializer_class = UserSummarySerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -55,15 +70,12 @@ class FollowingListView(generics.ListAPIView):
 
 
 class FollowersListView(generics.ListAPIView):
-    """
-    List users that follow the request.user.
-    """
+    """List users that follow the request.user."""
     serializer_class = UserSummarySerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return self.request.user.followers.all()
-
 
 
 class RegisterView(generics.CreateAPIView):
