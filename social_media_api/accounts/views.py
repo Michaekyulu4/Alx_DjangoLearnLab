@@ -15,45 +15,32 @@ from .serializers import UserSummarySerializer
 User = get_user_model()
 
 
-class FollowUserView(APIView):
+class FollowUserView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
 
     def post(self, request, user_id):
-        """
-        Follow user with id=user_id
-        """
-        try:
-            target = User.objects.get(pk=user_id)
-        except User.DoesNotExist:
-            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        """Follow another user."""
+        target_user = get_object_or_404(CustomUser, id=user_id)
+        if target_user == request.user:
+            return Response({"detail": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if target == request.user:
-            return Response({'detail': "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
-
-        request.user.following.add(target)
-        request.user.save()
-        return Response({'detail': f'You are now following {target.username}.'}, status=status.HTTP_200_OK)
+        request.user.following.add(target_user)
+        return Response({"detail": f"You are now following {target_user.username}."}, status=status.HTTP_200_OK)
 
 
-class UnfollowUserView(APIView):
+class UnfollowUserView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
 
     def post(self, request, user_id):
-        """
-        Unfollow user with id=user_id
-        (using POST so client doesn't need to send body; can use DELETE if you prefer)
-        """
-        try:
-            target = User.objects.get(pk=user_id)
-        except User.DoesNotExist:
-            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        """Unfollow a user."""
+        target_user = get_object_or_404(CustomUser, id=user_id)
+        if target_user == request.user:
+            return Response({"detail": "You cannot unfollow yourself."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if target == request.user:
-            return Response({'detail': "You cannot unfollow yourself."}, status=status.HTTP_400_BAD_REQUEST)
-
-        request.user.following.remove(target)
-        request.user.save()
-        return Response({'detail': f'You have unfollowed {target.username}.'}, status=status.HTTP_200_OK)
+        request.user.following.remove(target_user)
+        return Response({"detail": f"You have unfollowed {target_user.username}."}, status=status.HTTP_200_OK)
 
 
 class FollowingListView(generics.ListAPIView):
