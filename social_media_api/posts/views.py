@@ -12,28 +12,22 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.select_related('author').prefetch_related('comments')
+    queryset = Post.objects.all()  # ✅ required
     serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    pagination_class = StandardResultsSetPagination
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['author__id']          # filter by author id
-    search_fields = ['title', 'content']       # search by title or content
-    ordering_fields = ['created_at', 'updated_at']
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['title', 'content']
 
     def perform_create(self, serializer):
+        # Automatically set the author to the logged-in user
         serializer.save(author=self.request.user)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.select_related('author', 'post')
+    queryset = Comment.objects.all()  # ✅ required
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    pagination_class = StandardResultsSetPagination
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['post', 'author__id']
-    search_fields = ['content']
-    ordering_fields = ['created_at', 'updated_at']
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
