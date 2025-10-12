@@ -17,18 +17,15 @@ class FeedPagination(PageNumberPagination):
 
 
 class FeedView(generics.ListAPIView):
-    """
-    Returns posts authored by users the current user follows
-    """
-    serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = FeedPagination
+    serializer_class = PostSerializer
 
     def get_queryset(self):
+        """Return posts from users the current user follows."""
         user = self.request.user
-        # If user follows no one, return empty queryset
-        following_qs = user.following.all()
-        return Post.objects.filter(author__in=following_qs).order_by('-created_at')
+        following_users = user.following.all()
+        return Post.objects.filter(author__in=following_users).order_by('-created_at')
+
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
